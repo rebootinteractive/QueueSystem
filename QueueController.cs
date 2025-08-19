@@ -25,6 +25,7 @@ namespace QueueSystem
         [SerializeField, Unity.Collections.ReadOnly]
         protected List<QueueElement> queueElements = new List<QueueElement>();
         private QueueElement _lastLeader;
+        private QueueElement _pendingLeader;
         private Coroutine _updatePositionsCoroutine;
 
 
@@ -145,6 +146,7 @@ namespace QueueSystem
             var currentLeader = GetLeader();
             if (currentLeader == _lastLeader) return;
             _lastLeader = currentLeader;
+            _pendingLeader = currentLeader;
             if (currentLeader != null)
             {
                 currentLeader.onPreBecomeLeader?.Invoke();
@@ -366,6 +368,14 @@ namespace QueueSystem
             while (AnyQueueElementsMoving()) yield return null;
 
             onElementPositionsUpdated.Invoke();
+
+            if (_pendingLeader != null)
+            {
+                // Post-leader event after positions settle
+                _pendingLeader.onBecomeLeader?.Invoke();
+                OnElementBecomeLeader?.Invoke(_pendingLeader);
+                _pendingLeader = null;
+            }
             _updatePositionsCoroutine = null;
 
             // if(queueElements[0]!=null && queueElements[0].IsAtDestination()==false)
@@ -403,10 +413,11 @@ namespace QueueSystem
                 element.AssignController(this);
             }
 
-            if (queueElements.Count > 0)
+            _lastLeader = GetLeader();
+            _pendingLeader = _lastLeader;
+            if (_pendingLeader != null)
             {
-                queueElements[0].onPreBecomeLeader?.Invoke();
-                _lastLeader = queueElements[0];
+                _pendingLeader.onPreBecomeLeader?.Invoke();
             }
             UpdatePositions(false);
         }

@@ -18,7 +18,6 @@ namespace QueueSystem
         /// </summary>
         public UnityEvent onBecomeLeader;
         public QueueController Controller { get; private set; }
-        private bool _wasLeader;
         protected Coroutine MoveCoroutine;
 
         public float preOffset;
@@ -39,13 +38,6 @@ namespace QueueSystem
         protected virtual void OnElementPositionsUpdated()
         {
             if(Controller==null) return;
-            
-            if (Controller.IsLeader(this) && !_wasLeader)
-            {
-                _wasLeader = true;
-                onBecomeLeader?.Invoke();
-                Controller.ElementBecomeLeader(this);
-            }
             OnIndexChanged?.Invoke(GetIndex());
         }
 
@@ -169,7 +161,6 @@ namespace QueueSystem
         }
 
         public void ResetStates(){
-            _wasLeader=false;
             IsLocked=false;
             StopActiveMovement();
             RemoveController();
