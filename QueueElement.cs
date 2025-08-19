@@ -6,66 +6,67 @@ using UnityEngine.Events;
 
 namespace QueueSystem
 {
-    public class QueueElement: MonoBehaviour
+    public class QueueElement : MonoBehaviour
     {
         /// <summary>
         /// On pre become leader event is called when this element is about to become the leader of the queue. This is triggered before the element is moved to the leader position.
         /// </summary>
         public UnityEvent onPreBecomeLeader;
-        
+
         /// <summary>
         /// On become leader event is called when this element becomes the leader of the queue. This is triggered after the element is moved to the leader position.
         /// </summary>
         public UnityEvent onBecomeLeader;
-        public QueueController Controller { get; private set; }
+        public QueueController QueueController { get; private set; }
         protected Coroutine MoveCoroutine;
 
         public float preOffset;
         public float preLeaderOffset;
         public float postOffset;
-        
+
         public bool IsLocked { get; private set; }
-        [SerializeField] private bool destroyGameObjectOnDestroy=true;
+        [SerializeField] private bool destroyGameObjectOnDestroy = true;
 
         public Action<int> OnIndexChanged;
-        
+
         public virtual void AssignController(QueueController controller)
         {
-            Controller = controller;
+            QueueController = controller;
             controller.onElementPositionsUpdated.AddListener(OnElementPositionsUpdated);
         }
 
         protected virtual void OnElementPositionsUpdated()
         {
-            if(Controller==null) return;
+            if (QueueController == null) return;
             OnIndexChanged?.Invoke(GetIndex());
         }
 
         public virtual void Destroy()
         {
-            if(destroyGameObjectOnDestroy){
+            if (destroyGameObjectOnDestroy)
+            {
                 Destroy(gameObject);
             }
-            if (Controller != null) 
-                Controller.RemoveElement(this);
+            if (QueueController != null)
+                QueueController.RemoveElement(this);
             StopActiveMovement();
             StopAllCoroutines();
         }
 
         private void OnDestroy()
         {
-            if(MoveCoroutine!=null) StopCoroutine(MoveCoroutine);
+            if (MoveCoroutine != null) StopCoroutine(MoveCoroutine);
         }
 
-        public virtual void MoveToPosition(Vector3 localPosition,float duration)
+        public virtual void MoveToPosition(Vector3 localPosition, float duration)
         {
             StopActiveMovement();
             MoveCoroutine = StartCoroutine(MoveToPositionCoroutine(localPosition, duration));
         }
-        
+
         public void StopActiveMovement()
         {
-            if (MoveCoroutine!=null)
+            if (MoveCoroutine != null)
             {
                 StopCoroutine(MoveCoroutine);
                 MoveCoroutine = null;
@@ -88,11 +89,12 @@ namespace QueueSystem
 
         public bool IsLeader()
         {
-            if(Controller==null){
+            if (QueueController == null)
+            {
                 Debug.LogError("Controller is null");
                 return false;
             }
-            return Controller.IsLeader(this);
+            return QueueController.IsLeader(this);
         }
 
 
@@ -102,7 +104,7 @@ namespace QueueSystem
         {
             IsLocked = true;
         }
-        
+
         [Button]
         public void UnlockElement()
         {
@@ -111,27 +113,28 @@ namespace QueueSystem
 
         public int GetIndex()
         {
-            return Controller.GetElementIndex(this);
+            return QueueController.GetElementIndex(this);
         }
-        
+
         public int CountEmptySpacesAfterElement()
         {
-            if(Controller==null) {                
+            if (QueueController == null)
+            {
                 return 0;
             }
-            return Controller.CountEmptySpacesAfterElement(this);
+            return QueueController.CountEmptySpacesAfterElement(this);
         }
-        
+
         public void ForceShiftElement(int shiftCount)
         {
-            Controller.ShiftElement(this, shiftCount);
-            Controller.ShiftUnlockedElements();
-            Controller.UpdatePositions(true);
+            QueueController.ShiftElement(this, shiftCount);
+            QueueController.ShiftUnlockedElements();
+            QueueController.UpdatePositions(true);
         }
 
         public bool InQueue()
         {
-            return Controller.InQueue(this);
+            return QueueController.InQueue(this);
         }
 
         public bool IsMoving()
@@ -142,28 +145,32 @@ namespace QueueSystem
         public bool IsAtDestination()
         {
             var currentPosition = transform.localPosition;
-            var destinationPosition = Controller.GetElementPosition(GetIndex());
+            var destinationPosition = QueueController.GetElementPosition(GetIndex());
             return Vector3.SqrMagnitude(currentPosition - destinationPosition) < 0.001f;
         }
 
-        public void RemoveController()
-        {
-            if (Controller)
-            {
-                Controller.onElementPositionsUpdated.RemoveListener(OnElementPositionsUpdated);
-                Controller = null;
-            }
-        }
-        
         public Vector3 GetDestinationPosition()
         {
-            return Controller.GetElementPosition(GetIndex());
+            return QueueController.GetElementPosition(GetIndex());
         }
 
-        public void ResetStates(){
-            IsLocked=false;
+        public void ResetStates()
+        {
+            IsLocked = false;
             StopActiveMovement();
-            RemoveController();
+            if (QueueController)
+            {
+                QueueController.onElementPositionsUpdated.RemoveListener(OnElementPositionsUpdated);
+                QueueController = null;
+            }
+        }
+
+        public void RemoveFromQueue()
+        {
+            if (QueueController)
+            {
+                QueueController.RemoveElement(this);
+            }
         }
     }
 }

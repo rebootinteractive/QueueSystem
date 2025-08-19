@@ -35,16 +35,16 @@ namespace QueueSystem
             Element1.LockElement();
             Element2.LockElement();
 
-            Element1.Controller.OnElementsShifted += OnElementShifted;
-            Element2.Controller.OnElementsShifted += OnElementShifted;
+            Element1.QueueController.OnElementsShifted += OnElementShifted;
+            Element2.QueueController.OnElementsShifted += OnElementShifted;
             
             UpdatePosition();
         }
 
         public virtual void DestroyConnection()
         {
-            Element1.Controller.OnElementsShifted -= OnElementShifted;
-            Element2.Controller.OnElementsShifted -= OnElementShifted;
+            Element1.QueueController.OnElementsShifted -= OnElementShifted;
+            Element2.QueueController.OnElementsShifted -= OnElementShifted;
             Destroy();
         }
 
@@ -73,14 +73,14 @@ namespace QueueSystem
             int shift = Mathf.Min(connectedSlot1AvailableShift, connectedSlot2AvailableShift);
             if (shift > 0)
             {
-                Element1.Controller.OnElementsShifted -= OnElementShifted;
-                Element2.Controller.OnElementsShifted -= OnElementShifted;
+                Element1.QueueController.OnElementsShifted -= OnElementShifted;
+                Element2.QueueController.OnElementsShifted -= OnElementShifted;
 
                 Element1.ForceShiftElement(shift);
                 Element2.ForceShiftElement(shift);
 
-                Element1.Controller.OnElementsShifted += OnElementShifted;
-                Element2.Controller.OnElementsShifted += OnElementShifted;
+                Element1.QueueController.OnElementsShifted += OnElementShifted;
+                Element2.QueueController.OnElementsShifted += OnElementShifted;
             }
         }
     }

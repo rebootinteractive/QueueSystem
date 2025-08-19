@@ -122,7 +122,10 @@ namespace QueueSystem
                 Debug.LogError("Element not found in the queue");
                 return;
             }
+            
             queueElements[index] = null;
+            element.ResetStates();
+
             ShiftUnlockedElements();
             CheckLeader();            
         }
