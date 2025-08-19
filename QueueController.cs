@@ -23,7 +23,7 @@ namespace QueueSystem
         public Action OnElementsShifted;
 
         [SerializeField, Unity.Collections.ReadOnly]
-        protected QueueElement[] queueElements;
+        protected List<QueueElement> queueElements = new List<QueueElement>();
         private QueueElement _lastLeader;
         private Coroutine _updatePositionsCoroutine;
 
@@ -36,24 +36,31 @@ namespace QueueSystem
         
         public virtual void DestroyElements()
         {
-            var elementsToDestroy=queueElements.ToList();            
+            var elementsToDestroy = queueElements.Where(e => e != null).ToList();            
             foreach (var element in elementsToDestroy)
             {
                 element.Destroy();
             }
-            queueElements = Array.Empty<QueueElement>();
+            queueElements.Clear();
         }
 
         public virtual void AddElement(QueueElement element, bool updatePositions)
         {
-            //Resize the array
-            Array.Resize(ref queueElements, queueElements.Length + 1);
-            SetElement(element, updatePositions, queueElements.Length - 1);
+            if (queueElements.Contains(element))
+            {
+                Debug.LogError("Element already exists in the queue");
+                return;
+            }
+
+            queueElements.Add(element);
+            element.AssignController(this);
+            CheckLeader();
+            if (updatePositions) UpdateElementPosition(element);
         }
 
         public virtual void InsertElement(QueueElement element, bool updatePositions, int index)
         {
-            if(index<0 || index>=queueElements.Length){
+            if(index < 0 || index > queueElements.Count){
                 Debug.LogError("Index is out of bounds");
                 return;
             }
@@ -64,14 +71,7 @@ namespace QueueSystem
                 return;
             }
 
-            //Resize the array
-            Array.Resize(ref queueElements, queueElements.Length + 1);
-            //Shift all elements after the index 
-            for (int i = queueElements.Length - 1; i > index; i--)
-            {
-                queueElements[i] = queueElements[i - 1];
-            }
-            queueElements[index] = element;
+            queueElements.Insert(index, element);
             element.AssignController(this);
             CheckLeader();
             if (updatePositions) UpdateElementPosition(element);
@@ -80,7 +80,27 @@ namespace QueueSystem
 
         public virtual void SetElement(QueueElement element, bool updatePositions, int index)
         {
-            queueElements[index] = element;
+            if (index < 0 || index > queueElements.Count)
+            {
+                Debug.LogError("Index is out of bounds");
+                return;
+            }
+
+            if (queueElements.Contains(element))
+            {
+                Debug.LogError("Element already exists in the queue");
+                return;
+            }
+
+            if (index == queueElements.Count)
+            {
+                queueElements.Add(element);
+            }
+            else
+            {
+                queueElements[index] = element;
+            }
+
             element.AssignController(this);
 
             CheckLeader();
@@ -95,7 +115,7 @@ namespace QueueSystem
 
         public virtual void RemoveElement(QueueElement element)
         {
-            int index = Array.IndexOf(queueElements, element);
+            int index = queueElements.IndexOf(element);
             if (index < 0)
             {
                 Debug.LogError("Element not found in the queue");
@@ -110,7 +130,7 @@ namespace QueueSystem
         {
             foreach (var element in elements)
             {
-                int index = Array.IndexOf(queueElements, element);
+                int index = queueElements.IndexOf(element);
                 if (index == -1) continue;
                 queueElements[index] = null;
             }
@@ -138,11 +158,11 @@ namespace QueueSystem
         {
             bool lockedFound = false;
 
-            for (int i = 0; i < queueElements.Length - 1; i++)
+            for (int i = 0; i < queueElements.Count - 1; i++)
             {
                 if (queueElements[i] == null)
                 {
-                    for (int j = i + 1; j < queueElements.Length; j++)
+                    for (int j = i + 1; j < queueElements.Count; j++)
                     {
                         if (queueElements[j] != null)
                         {
@@ -168,7 +188,7 @@ namespace QueueSystem
         private void TrimQueue()
         {
             int nullCount = 0;
-            for (int i = queueElements.Length - 1; i >= 0; i--)
+            for (int i = queueElements.Count - 1; i >= 0; i--)
             {
                 if (queueElements[i] == null)
                 {
@@ -182,13 +202,18 @@ namespace QueueSystem
 
             if (nullCount > 0)
             {
-                Array.Resize(ref queueElements, queueElements.Length - nullCount);
+                int newCount = queueElements.Count - nullCount;
+                if (newCount < 0) newCount = 0;
+                if (nullCount > 0)
+                {
+                    queueElements.RemoveRange(newCount, queueElements.Count - newCount);
+                }
             }
         }
 
         public bool ShiftElement(QueueElement element, int count)
         {
-            int index = Array.IndexOf(queueElements, element);
+            int index = queueElements.IndexOf(element);
             if (index == -1) return false;
 
             // Shift the element until all further empty spaces are filled or count is reached
@@ -223,7 +248,7 @@ namespace QueueSystem
         /// <returns></returns>
         public int CountEmptySpacesAfterElement(QueueElement element)
         {
-            int index = Array.IndexOf(queueElements, element);
+            int index = queueElements.IndexOf(element);
             if (index == -1) return 0;
             int nullCount = 0;
             for (int i = index - 1; i >= 0; i--)
@@ -245,7 +270,7 @@ namespace QueueSystem
         [Button]
         public virtual void UpdatePositions(bool tween)
         {
-            if (queueElements.Length == 0)
+            if (queueElements.Count == 0)
                 return;
 
             if (tween)
@@ -258,7 +283,7 @@ namespace QueueSystem
             }
             else
             {
-                for (int i = 0; i < queueElements.Length; i++)
+                for (int i = 0; i < queueElements.Count; i++)
                 {
                     if (queueElements[i] == null) continue;
                     queueElements[i].transform.localPosition = GetElementPosition(i);
@@ -271,7 +296,7 @@ namespace QueueSystem
 
         private void UpdateElementPosition(QueueElement element)
         {
-            int index = Array.IndexOf(queueElements, element);
+            int index = queueElements.IndexOf(element);
             if (index == -1)
             {
                 Debug.LogError("Element not found in the queue");
@@ -289,7 +314,7 @@ namespace QueueSystem
         public virtual Vector3 GetElementPosition(int index)
         {
             //If index is not valid calculate it
-            if(index<0 || index>=queueElements.Length)
+            if(index<0 || index>=queueElements.Count)
                 return CalulateElementPositionWithIndex(index);
             
             Vector3 position = Vector3.zero;
@@ -329,7 +354,7 @@ namespace QueueSystem
 
         protected virtual IEnumerator UpdatePositionsCoroutine()
         {
-            for (int index = 0; index < queueElements.Length; index++)
+            for (int index = 0; index < queueElements.Count; index++)
             {
                 QueueElement element = queueElements[index];
                 if (element == null) continue;
@@ -363,21 +388,22 @@ namespace QueueSystem
 
         public bool IsLeader(QueueElement queueElement)
         {
-            return queueElements.Length > 0 && queueElements[0] == queueElement;
+            return queueElements.Count > 0 && queueElements[0] == queueElement;
         }
 
         public virtual void UpdateQueueFromChildren()
         {
             var childElements = GetComponentsInChildren<QueueElement>();
-            queueElements = new QueueElement[childElements.Length];
+            queueElements = new List<QueueElement>(childElements.Length);
 
             for (int index = 0; index < childElements.Length; index++)
             {
                 QueueElement element = childElements[index];
-                SetElement(element, false, index);
+                queueElements.Add(element);
+                element.AssignController(this);
             }
 
-            if (queueElements.Length > 0)
+            if (queueElements.Count > 0)
             {
                 queueElements[0].onPreBecomeLeader?.Invoke();
                 _lastLeader = queueElements[0];
@@ -388,12 +414,12 @@ namespace QueueSystem
 
         public int GetElementIndex(QueueElement queueElement)
         {
-            return Array.IndexOf(queueElements, queueElement);
+            return queueElements.IndexOf(queueElement);
         }
 
         public int CountElements()
         {
-            return queueElements.Length;
+            return queueElements.Count;
         }
 
         public QueueElement GetElement(int index)
@@ -403,24 +429,24 @@ namespace QueueSystem
 
         public QueueElement[] GetElements()
         {
-            return queueElements;
+            return queueElements.ToArray();
         }
 
         public bool InQueue(QueueElement queueElement)
         {
-            return Array.IndexOf(queueElements, queueElement) != -1;
+            return queueElements.IndexOf(queueElement) != -1;
         }
 
         public QueueElement GetLeader()
         {
-            if (queueElements.Length == 0) return null;
+            if (queueElements.Count == 0) return null;
             return queueElements[0];
         }
 
         public List<QueueElement> GetForeElements(QueueElement element)
         {
             List<QueueElement> foreElements = new List<QueueElement>();
-            int index = Array.IndexOf(queueElements, element);
+            int index = queueElements.IndexOf(element);
             if (index == -1) return foreElements;
             for (int i = 0; i < index; i++)
             {
@@ -438,11 +464,11 @@ namespace QueueSystem
             if (Application.isPlaying) return;
 
             var childElements = GetComponentsInChildren<QueueElement>();
-            queueElements = new QueueElement[childElements.Length];
+            queueElements = new List<QueueElement>(childElements.Length);
             for (int index = 0; index < childElements.Length; index++)
             {
                 QueueElement element = childElements[index];
-                queueElements[index] = element;
+                queueElements.Add(element);
                 element.transform.localPosition = GetElementPosition(index);
                 UnityEditor.EditorUtility.SetDirty(element.gameObject);
             }
