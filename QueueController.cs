@@ -45,6 +45,16 @@ namespace QueueSystem
             queueElements.Clear();
         }
 
+        public virtual void ClearElements()
+        {
+            var elementsToClear = queueElements.Where(e => e != null).ToList();
+            foreach (var element in queueElements)
+            {
+                RemoveElement(element);    
+            }
+            
+        }
+
         public virtual void AddElement(QueueElement element, bool updatePositions)
         {
             if (queueElements.Contains(element))
