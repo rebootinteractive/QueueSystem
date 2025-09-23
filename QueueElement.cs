@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -99,13 +101,17 @@ namespace QueueSystem
 
 
 
+        #if ODIN_INSPECTOR
         [Button]
+        #endif
         public void LockElement()
         {
             IsLocked = true;
         }
 
+        #if ODIN_INSPECTOR
         [Button]
+        #endif
         public void UnlockElement()
         {
             IsLocked = false;

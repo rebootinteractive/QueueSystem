@@ -2,8 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-using CardFactory;
+#endif
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -282,7 +283,9 @@ namespace QueueSystem
         }
 
 
+        #if ODIN_INSPECTOR
         [Button]
+        #endif
         public virtual void UpdatePositions(bool tween)
         {
             if (queueElements.Count == 0)
@@ -482,7 +485,9 @@ namespace QueueSystem
 
 #if UNITY_EDITOR
 
+        #if ODIN_INSPECTOR
         [Button]
+        #endif
         public void UpdateQueueFromChildrenEditor()
         {
             if (Application.isPlaying) return;

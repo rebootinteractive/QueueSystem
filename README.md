@@ -2,6 +2,19 @@
 
 Lightweight, extensible utilities to arrange and animate elements in a linear queue (stack/row/column) with dynamic gaps, per-element offsets, leader detection, locking, shifting, and optional two-element connectors.
 
+### Install (Unity Package Manager via Git)
+- Open Unity: Window → Package Manager → + → Add package from git URL…
+- Use one of the following URLs (replace `owner/repo` with your GitHub path):
+  - Using path query (recommended):
+    - `https://github.com/owner/repo.git?path=/Packages/QueueSystem`
+    - Pin to a tag/commit: `https://github.com/owner/repo.git?path=/Packages/QueueSystem#v1.0.0`
+  - Using hash path (some older UPM versions):
+    - `https://github.com/owner/repo.git#path=/Packages/QueueSystem`
+
+Notes:
+- This package includes an assembly definition `QueueSystem` and a `package.json` so it’s importable via UPM.
+- Odin Inspector attributes are optional and wrapped with the `ODIN_INSPECTOR` define. If you use Odin, add the scripting define symbol `ODIN_INSPECTOR` in Project Settings → Player.
+
 ### Key Concepts
 - **QueueController**: Owns the ordered list, computes target positions, animates elements, and emits events.
 - **QueueElement**: Component for queued objects. Supports movement, locking, offsets, and index change notifications.
