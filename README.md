@@ -4,15 +4,13 @@ Lightweight, extensible utilities to arrange and animate elements in a linear qu
 
 ### Install (Unity Package Manager via Git)
 - Open Unity: Window → Package Manager → + → Add package from git URL…
-- Use one of the following URLs (replace `owner/repo` with your GitHub path):
-  - Using path query (recommended):
-    - `https://github.com/owner/repo.git?path=/Packages/QueueSystem`
-    - Pin to a tag/commit: `https://github.com/owner/repo.git?path=/Packages/QueueSystem#v1.0.0`
-  - Using hash path (some older UPM versions):
-    - `https://github.com/owner/repo.git#path=/Packages/QueueSystem`
+- Use the repository URL (package is at repo root, no path needed):
+  - `https://github.com/rebootinteractive/QueueSystem.git`
+  - Pin to a tag: `https://github.com/rebootinteractive/QueueSystem.git#v1.0.0`
+  - Pin to a commit: `https://github.com/rebootinteractive/QueueSystem.git#<commit_sha>`
 
 Notes:
-- This package includes an assembly definition `QueueSystem` and a `package.json` so it’s importable via UPM.
+- This repo is UPM-ready at its root and includes `QueueSystem.asmdef` and `package.json`.
 - Odin Inspector attributes are optional and wrapped with the `ODIN_INSPECTOR` define. If you use Odin, add the scripting define symbol `ODIN_INSPECTOR` in Project Settings → Player.
 
 ### Key Concepts
