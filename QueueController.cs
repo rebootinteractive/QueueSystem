@@ -14,7 +14,8 @@ namespace QueueSystem
     public class QueueController : MonoBehaviour
     {
         public Vector3 queueDirection = Vector3.forward;
-        [SerializeField] private bool updateOnStart;        
+        [SerializeField] private bool getChildrenOnStart;       
+        [SerializeField] private bool ignoreGrandchildren;
         [SerializeField] protected float gapBetweenElements = 1f;
         [SerializeField] private float tweenDuration = 10f;
 
@@ -32,7 +33,7 @@ namespace QueueSystem
 
         protected virtual void Start()
         {
-            if (updateOnStart)
+            if (getChildrenOnStart)
                 UpdateQueueFromChildren();
         }
         
@@ -420,6 +421,10 @@ namespace QueueSystem
         public virtual void UpdateQueueFromChildren()
         {
             var childElements = GetComponentsInChildren<QueueElement>();
+            if (ignoreGrandchildren)
+            {
+                childElements = childElements.Where(e => e.transform.parent == transform).ToArray();
+            }
             queueElements = new List<QueueElement>(childElements.Length);
 
             for (int index = 0; index < childElements.Length; index++)
@@ -493,6 +498,10 @@ namespace QueueSystem
             if (Application.isPlaying) return;
 
             var childElements = GetComponentsInChildren<QueueElement>();
+            if (ignoreGrandchildren)
+            {
+                childElements = childElements.Where(e => e.transform.parent == transform).ToArray();
+            }
             queueElements = new List<QueueElement>(childElements.Length);
             for (int index = 0; index < childElements.Length; index++)
             {
