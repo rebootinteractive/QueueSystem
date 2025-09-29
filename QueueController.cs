@@ -50,9 +50,15 @@ namespace QueueSystem
         public virtual void ClearElements()
         {
             var elementsToClear = queueElements.Where(e => e != null).ToList();
+            var elementsToRemove = new List<QueueElement>();
             foreach (var element in queueElements)
             {
-                RemoveElement(element);    
+                elementsToRemove.Add(element);    
+            }
+
+            foreach (var element in elementsToRemove)
+            {
+                RemoveElement(element);
             }
             
         }
