@@ -14,6 +14,7 @@ namespace QueueSystem
     public class QueueController : MonoBehaviour
     {
         public Vector3 queueDirection = Vector3.forward;
+        public float GapBetweenElements => gapBetweenElements;
         [SerializeField] private bool getChildrenOnStart;       
         [SerializeField] private bool ignoreGrandchildren;
         [SerializeField] protected float gapBetweenElements = 1f;
@@ -21,9 +22,7 @@ namespace QueueSystem
 
         public UnityEvent<QueueElement> OnElementBecomeLeader;
         public UnityEvent onElementPositionsUpdated;
-
         public Action OnElementsShifted;
-
         [SerializeField, Unity.Collections.ReadOnly]
         protected List<QueueElement> queueElements = new List<QueueElement>();
         private QueueElement _lastLeader;
