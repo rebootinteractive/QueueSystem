@@ -14,10 +14,10 @@ namespace QueueSystem
     public class QueueController : MonoBehaviour
     {
         public Vector3 queueDirection = Vector3.forward;
-        public float GapBetweenElements => gapBetweenElements;
+        public float GapBetweenElements = 1f;
+
         [SerializeField] private bool getChildrenOnStart;       
-        [SerializeField] private bool ignoreGrandchildren;
-        [SerializeField] protected float gapBetweenElements = 1f;
+        [SerializeField] private bool ignoreGrandchildren;        
         [SerializeField] private float tweenDuration = 10f;
 
         public UnityEvent<QueueElement> OnElementBecomeLeader;
@@ -346,7 +346,7 @@ namespace QueueSystem
             // Apply gap offsets of all previous elements
             for (int i = 0; i < index; i++)
             {
-                float gap = gapBetweenElements;
+                float gap = GapBetweenElements;
                 if (queueElements[i] != null)
                 {
                     if(i==0)
@@ -373,7 +373,7 @@ namespace QueueSystem
 
         public virtual Vector3 CalulateElementPositionWithIndex(int index)
         {
-            return queueDirection * gapBetweenElements * index;
+            return queueDirection * GapBetweenElements * index;
         }
 
         protected virtual IEnumerator UpdatePositionsCoroutine()
