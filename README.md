@@ -67,7 +67,7 @@ Notes:
   - `void RemoveElement(QueueElement element)` / `void RemoveElements(QueueElement[] elements)`
   - `void DestroyElements()` (calls `QueueElement.Destroy()` for all and clears)
   - `void UpdatePositions(bool tween)`
-  - `Vector3 GetElementPosition(int index)` / `Vector3 CalulateElementPositionWithIndex(int index)`
+  - `Vector3 GetElementPosition(int index)` / `Vector3 CalculateElementPositionWithIndex(int index)`
   - `QueueElement GetLeader()` / `bool IsLeader(QueueElement)`
   - `void ShiftUnlockedElements()` / `bool ShiftElement(QueueElement element, int count)`
   - `int CountElements()` / `QueueElement GetElement(int index)` / `QueueElement[] GetElements()`
@@ -82,7 +82,7 @@ Notes:
   - Index/util: `int GetIndex()`, `Vector3 GetDestinationPosition()`
   - Locking: `void LockElement()`, `void UnlockElement()`
   - Shifting: `int CountEmptySpacesAfterElement()`, `void ForceShiftElement(int shiftCount)`
-  - Lifecycle: `void AssignController(QueueController)`, `void RemoveController()`, `void Destroy()`, `void ResetStates()`
+  - Lifecycle: `void AssignController(QueueController)`, `void Destroy()`, `void ResetStates()`
 
 - `QueueElementConnector : MonoBehaviour`
   - `void Connect(QueueElement a, QueueElement b)`

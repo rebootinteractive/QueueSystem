@@ -45,14 +45,14 @@ namespace QueueSystem
 
         public virtual void Destroy()
         {
-            if (destroyGameObjectOnDestroy)
-            {
-                Destroy(gameObject);
-            }
             if (QueueController != null)
                 QueueController.RemoveElement(this);
             StopActiveMovement();
             StopAllCoroutines();
+            if (destroyGameObjectOnDestroy)
+            {
+                Destroy(gameObject);
+            }
         }
 
         private void OnDestroy()
@@ -119,6 +119,11 @@ namespace QueueSystem
 
         public int GetIndex()
         {
+            if (QueueController == null)
+            {
+                Debug.LogError("Controller is null");
+                return -1;
+            }
             return QueueController.GetElementIndex(this);
         }
 
@@ -133,6 +138,11 @@ namespace QueueSystem
 
         public void ForceShiftElement(int shiftCount)
         {
+            if (QueueController == null)
+            {
+                Debug.LogError("Controller is null");
+                return;
+            }
             QueueController.ShiftElement(this, shiftCount);
             QueueController.ShiftUnlockedElements();
             QueueController.UpdatePositions(true);
@@ -140,6 +150,7 @@ namespace QueueSystem
 
         public bool InQueue()
         {
+            if (QueueController == null) return false;
             return QueueController.InQueue(this);
         }
 
@@ -150,6 +161,7 @@ namespace QueueSystem
 
         public bool IsAtDestination()
         {
+            if (QueueController == null) return true;
             var currentPosition = transform.localPosition;
             var destinationPosition = QueueController.GetElementPosition(GetIndex());
             return Vector3.SqrMagnitude(currentPosition - destinationPosition) < 0.001f;
@@ -157,6 +169,11 @@ namespace QueueSystem
 
         public Vector3 GetDestinationPosition()
         {
+            if (QueueController == null)
+            {
+                Debug.LogError("Controller is null");
+                return transform.localPosition;
+            }
             return QueueController.GetElementPosition(GetIndex());
         }
 

@@ -41,8 +41,20 @@ namespace QueueSystem
 
         public virtual void DestroyConnection()
         {
-            Element1.QueueController.OnElementsShifted -= OnElementShifted;
-            Element2.QueueController.OnElementsShifted -= OnElementShifted;
+            if (Element1 != null)
+            {
+                if (Element1.QueueController != null)
+                    Element1.QueueController.OnElementsShifted -= OnElementShifted;
+                Element1.UnlockElement();
+            }
+
+            if (Element2 != null)
+            {
+                if (Element2.QueueController != null)
+                    Element2.QueueController.OnElementsShifted -= OnElementShifted;
+                Element2.UnlockElement();
+            }
+
             Destroy();
         }
 

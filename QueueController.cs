@@ -14,7 +14,8 @@ namespace QueueSystem
     public class QueueController : MonoBehaviour
     {
         public Vector3 queueDirection = Vector3.forward;
-        public float GapBetweenElements = 1f;
+        [FormerlySerializedAs("GapBetweenElements")]
+        public float gapBetweenElements = 1f;
 
         [SerializeField] private bool getChildrenOnStart;       
         [SerializeField] private bool ignoreGrandchildren;        
@@ -48,18 +49,12 @@ namespace QueueSystem
 
         public virtual void ClearElements()
         {
-            var elementsToClear = queueElements.Where(e => e != null).ToList();
-            var elementsToRemove = new List<QueueElement>();
-            foreach (var element in queueElements)
-            {
-                elementsToRemove.Add(element);    
-            }
+            var elementsToRemove = queueElements.Where(e => e != null).ToList();
 
             foreach (var element in elementsToRemove)
             {
                 RemoveElement(element);
             }
-            
         }
 
         public virtual void AddElement(QueueElement element, bool updatePositions)
@@ -154,10 +149,11 @@ namespace QueueSystem
                 int index = queueElements.IndexOf(element);
                 if (index == -1) continue;
                 queueElements[index] = null;
+                element.ResetStates();
             }
 
             ShiftUnlockedElements();
-            CheckLeader();        
+            CheckLeader();
             UpdatePositions(true);
         }
 
@@ -226,10 +222,7 @@ namespace QueueSystem
             {
                 int newCount = queueElements.Count - nullCount;
                 if (newCount < 0) newCount = 0;
-                if (nullCount > 0)
-                {
-                    queueElements.RemoveRange(newCount, queueElements.Count - newCount);
-                }
+                queueElements.RemoveRange(newCount, queueElements.Count - newCount);
             }
         }
 
@@ -238,8 +231,6 @@ namespace QueueSystem
             int index = queueElements.IndexOf(element);
             if (index == -1) return false;
 
-            // Shift the element until all further empty spaces are filled or count is reached
-            // Ignores element being locked
             for (int i = index - 1; i >= 0; i--)
             {
                 if (queueElements[i] == null)
@@ -252,19 +243,16 @@ namespace QueueSystem
                         return true;
                     }
                 }
-                else
-                {
-                    Debug.LogError("Not enough space to shift");
-                }
             }
 
+            Debug.LogWarning("Not enough space to shift element");
             return false;
 
         }
 
 
         /// <summary>
-        /// How many empty spaces are available after the element
+        /// How many contiguous empty spaces are available before the element (toward the leader)
         /// </summary>
         /// <param name="element"></param>
         /// <returns></returns>
@@ -339,14 +327,14 @@ namespace QueueSystem
         {
             //If index is not valid calculate it
             if(index<0 || index>=queueElements.Count)
-                return CalulateElementPositionWithIndex(index);
+                return CalculateElementPositionWithIndex(index);
             
             Vector3 position = Vector3.zero;
             
             // Apply gap offsets of all previous elements
             for (int i = 0; i < index; i++)
             {
-                float gap = GapBetweenElements;
+                float gap = gapBetweenElements;
                 if (queueElements[i] != null)
                 {
                     if(i==0)
@@ -371,9 +359,9 @@ namespace QueueSystem
             return position;
         }
 
-        public virtual Vector3 CalulateElementPositionWithIndex(int index)
+        public virtual Vector3 CalculateElementPositionWithIndex(int index)
         {
-            return queueDirection * GapBetweenElements * index;
+            return queueDirection * gapBetweenElements * index;
         }
 
         protected virtual IEnumerator UpdatePositionsCoroutine()
@@ -393,17 +381,11 @@ namespace QueueSystem
 
             if (_pendingLeader != null)
             {
-                // Post-leader event after positions settle
                 _pendingLeader.onBecomeLeader?.Invoke();
                 OnElementBecomeLeader?.Invoke(_pendingLeader);
                 _pendingLeader = null;
             }
             _updatePositionsCoroutine = null;
-
-            // if(queueElements[0]!=null && queueElements[0].IsAtDestination()==false)
-            // {
-            //     UpdatePositions(true);
-            // }
         }
 
         public bool AnyQueueElementsMoving()

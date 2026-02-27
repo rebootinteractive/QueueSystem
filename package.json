@@ -6,9 +6,9 @@
   "description": "Lightweight queue controller and element components for arranging and moving objects in sequence.",
   "keywords": ["queue", "controller", "runtime"],
   "author": {
-    "name": "Reboot",
-    "email": "",
-    "url": ""
+    "name": "Umur Can Gurelli",
+    "email": "umurcg@gmail.com",
+    "url": "umurcg.com"
   },
   "type": "library",
   "hideInEditor": false,
