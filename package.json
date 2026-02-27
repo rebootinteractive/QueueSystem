@@ -1,7 +1,7 @@
 {
   "name": "com.reboot.queuesystem",
   "displayName": "Queue System",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "2021.3",
   "description": "Lightweight queue controller and element components for arranging and moving objects in sequence.",
   "keywords": ["queue", "controller", "runtime"],
