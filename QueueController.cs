@@ -19,7 +19,7 @@ namespace QueueSystem
 
         [SerializeField] private bool getChildrenOnStart;       
         [SerializeField] private bool ignoreGrandchildren;        
-        [SerializeField] private float tweenDuration = 10f;
+        [SerializeField] private float tweenDuration = .5f;
 
         public UnityEvent<QueueElement> OnElementBecomeLeader;
         public UnityEvent onElementPositionsUpdated;
