@@ -17,6 +17,8 @@ namespace QueueSystem
         [FormerlySerializedAs("GapBetweenElements")]
         public float gapBetweenElements = 1f;
 
+        public float TweenDuration => tweenDuration;
+
         [SerializeField] private bool getChildrenOnStart;       
         [SerializeField] private bool ignoreGrandchildren;        
         [SerializeField] private float tweenDuration = .5f;
