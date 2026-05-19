@@ -1,14 +1,14 @@
 {
   "name": "com.reboot.queuesystem",
   "displayName": "Queue System",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "unity": "2021.3",
   "description": "Lightweight queue controller and element components for arranging and moving objects in sequence.",
   "keywords": ["queue", "controller", "runtime"],
   "author": {
-    "name": "Umur Can Gurelli",
-    "email": "umurcg@gmail.com",
-    "url": "umurcg.com"
+    "name": "Reboot",
+    "email": "admin@reboot.ist",
+    "url": "https://www.reboot.gs"
   },
   "type": "library",
   "hideInEditor": false,
